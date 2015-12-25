@@ -83,7 +83,7 @@ function tweet() {
         console.log(turkeyHeadline);
         if (turkeyHeadline.indexOf("Turkey") > -1 &&
             turkeyAdjective(turkeyHeadline) != true &&
-            turkeyName(turkeyHeadline) != true {
+            turkeyName(turkeyHeadline) != true) {
             var aTurkeyHeadline = turkeyHeadline.replace("Turkey", "A Turkey");
             var aTurkeyHeadline = toTitleCase(aTurkeyHeadline);
             console.log(aTurkeyHeadline)
