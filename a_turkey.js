@@ -66,12 +66,24 @@ function turkeyAdjective(turkey) {
     }
 }
 
+function turkeyName(turkey) {
+    tokenizedTurkey = r.tokenize(turkey);
+    turkeyPos = r.getPosTags(tokenizedTurkey);
+    // console.log(tokenizedTurkey);
+    // console.log(turkeyPos);
+    // console.log(turkeyPos[tokenizedTurkey.indexOf('Turkey') + 1]);
+    if ((turkeyPos[tokenizedTurkey.indexOf('Turkey') - 1]) == "nnp") {
+        return true;
+    }
+}
+
 function tweet() {
     getHeadlines().then(function(turkeyHeadlines) {
         var turkeyHeadline = turkeyHeadlines.pickRemove();
         console.log(turkeyHeadline);
         if (turkeyHeadline.indexOf("Turkey") > -1 &&
-            turkeyAdjective(turkeyHeadline) != true) {
+            !=turkeyAdjective(turkeyHeadline) &&
+            !=turkeyName(turkeyHeadline)) {
             var aTurkeyHeadline = turkeyHeadline.replace("Turkey", "A Turkey");
             var aTurkeyHeadline = toTitleCase(aTurkeyHeadline);
             console.log(aTurkeyHeadline)
