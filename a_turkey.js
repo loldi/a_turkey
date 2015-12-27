@@ -6,9 +6,6 @@ var rita = require('rita');
 var r = rita.RiTa;
 var toTitleCase = require('titlecase')
 
-
-
-
 turkey = 'http://news.google.com/news?cf=all&hl=en&pz=1&ned=us&q=Turkey&output=rss';
 
 // ### Utility Functions (DOCUMENTATION FROM MR. KAZEMI)
@@ -31,73 +28,64 @@ function getHeadlines() {
     var dfd = new _.Deferred();
     feed(turkey, function(err, articles) {
         if (!err) {
-            // console.log(articles);
             for (i = 0; i < articles.length; i++) {
-                // console.log(info.results.collection1[i].headline);
                 turkey = articles[i].title;
                 slicedTurkey = turkey.slice(0, turkey.indexOf(" - "));
-                // escapedTitle = slicedTitle.replace(/'/g, "'")
-                // in an array that's not going to work,
-                // so let's save that technique for somewhere else.
-                turkeyHeadlines.push(slicedTurkey)
+                turkeyHeadlines.push(slicedTurkey) 
             }
-            dfd.resolve(turkeyHeadlines);
-            // console.log(turkeyHeadlines);
+            dfd.resolve(turkeyHeadlines);  
         } else {
             dfd.reject();
         }
     });
     return dfd.promise();
 }
-// url = 'http://news.google.com/news?cf=all&hl=en&pz=1&ned=us&q=Turkey&output=rss';
-
-
-// xray(url, 'title')
-//   .write('results.json')
 
 function turkeyAdjective(turkey) {
     tokenizedTurkey = r.tokenize(turkey);
     turkeyPos = r.getPosTags(tokenizedTurkey);
-    // console.log(tokenizedTurkey);
-    // console.log(turkeyPos);
-    // console.log(turkeyPos[tokenizedTurkey.indexOf('Turkey') + 1]);
-    if ((turkeyPos[tokenizedTurkey.indexOf('Turkey') + 1]) == "nnp") {
+    if ((turkeyPos[tokenizedTurkey.indexOf('Turkey') - 1]) == "jj") {
         return true;
+    } else {
+        return false;
     }
 }
 
 function turkeyName(turkey) {
     tokenizedTurkey = r.tokenize(turkey);
     turkeyPos = r.getPosTags(tokenizedTurkey);
-    // console.log(tokenizedTurkey);
-    // console.log(turkeyPos);
-    // console.log(turkeyPos[tokenizedTurkey.indexOf('Turkey') + 1]);
-    if ((turkeyPos[tokenizedTurkey.indexOf('Turkey') - 1]) == "nnp") {
+    if ((turkeyPos[tokenizedTurkey.indexOf('Turkey') - 1]) == "nnp" || (turkeyPos[tokenizedTurkey.indexOf('Turkey') + 1]) == "nns" ) {
         return true;
+    } else {
+        return false;
     }
 }
 
-function tweet() {
+
+function tweet(){
     getHeadlines().then(function(turkeyHeadlines) {
-        var turkeyHeadline = turkeyHeadlines.pickRemove();
-        console.log(turkeyHeadline);
-        if (turkeyHeadline.indexOf("Turkey") > -1 &&
-            turkeyAdjective(turkeyHeadline) != true &&
-            turkeyName(turkeyHeadline) != true) {
-            var aTurkeyHeadline = turkeyHeadline.replace("Turkey", "A Turkey");
-            var aTurkeyHeadline = toTitleCase(aTurkeyHeadline);
-            console.log(aTurkeyHeadline)
-        } else {
-            console.log("\"" + turkeyHeadline + "\" didn't really work... Looking for another Turkey...");
-            tweet();
+        //run checks on the words before/after Turkey BEFORE generating a headline
+        //add all the "good" headlines into a separate array and replace Turkey
+        //then pick out a headline from that instead
+        var filteredArray = [];
+        for (i = 0; i < turkeyHeadlines.length; i++){
+            if (turkeyAdjective(turkeyHeadlines[i]) != true && turkeyName(turkeyHeadlines[i]) != true && turkeyHeadlines[i].indexOf("Turkey") > -1){
+                var aTurkeyHeadline = turkeyHeadlines[i].replace(/\\/g, '');
+                var aTurkeyHeadline2 = turkeyHeadlines[i].replace("...", "");
+                var replaced = aTurkeyHeadline2.replace("Turkey", "A Turkey");
+                filteredArray.push(replaced);  
+            } else {
+                console.log("doesnt work checking next")
+            }
         }
+        var tweeted = filteredArray.pickRemove();
+        console.log(tweeted);
     });
 }
 
-// function test() {
-//     console.log(toTitleCase("Turkey's vote against Christmas"))
-// }
+
 tweet();
+
 
 // setInterval(function() {
 //     try {
